@@ -1,0 +1,65 @@
+paths:
+  train: data/train_test.csv
+  validation: data/validation.csv
+  template: data/validation_predictions_template.csv
+  december: data/december_chart_inputs.csv
+  predictions: validation_predictions.csv
+  model: artifacts/final_model.joblib
+  reports_dir: reports
+  figures_dir: reports/figures
+
+split:
+  cv_folds:
+    - name: may_2025
+      train_end: 2025-04-30
+      validation_start: 2025-05-01
+      validation_end: 2025-05-31
+    - name: june_2025
+      train_end: 2025-05-31
+      validation_start: 2025-06-01
+      validation_end: 2025-06-30
+    - name: july_2025
+      train_end: 2025-06-30
+      validation_start: 2025-07-01
+      validation_end: 2025-07-31
+    - name: august_2025
+      train_end: 2025-07-31
+      validation_start: 2025-08-01
+      validation_end: 2025-08-31
+    - name: september_2025
+      train_end: 2025-08-31
+      validation_start: 2025-09-01
+      validation_end: 2025-09-30
+  holdout_start: 2025-10-01
+  holdout_end: 2025-10-31
+  selection_metric: mae
+
+model:
+  random_seed: 42
+  linear:
+    minimum_category_frequency: 5
+  catboost:
+    iterations: 450
+    depth: 7
+    learning_rate: 0.05
+    l2_leaf_reg: 5.0
+    thread_count: 4
+    candidates:
+      - name: catboost_raw_mae
+        target_transform: identity
+        loss_function: MAE
+        depth: 6
+      - name: catboost_log_rmse
+        target_transform: log1p
+        loss_function: RMSE
+        depth: 7
+
+run:
+  write_oof_predictions: true
+  write_model_artifact: true
+
+cleaning:
+  enabled: true
+  low_ratio: 0.4
+  high_ratio: 2.5
+  distance_edges: [0, 250, 500, 1000, 2000]
